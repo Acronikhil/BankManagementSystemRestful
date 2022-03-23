@@ -10,13 +10,11 @@ import org.springframework.stereotype.Service;
 import com.bmsrestfulapi.entities.AccountInfo;
 import com.bmsrestfulapi.entities.Login;
 import com.bmsrestfulapi.entities.User;
+import com.bmsrestfulapi.exceptions.EmptyUserListException;
 import com.bmsrestfulapi.exceptions.InvalidCredentialsException;
-import com.bmsrestfulapi.exceptions.InvalidLoginCredentialsException;
 import com.bmsrestfulapi.exceptions.UserNotCreatedException;
-import com.bmsrestfulapi.exceptions.UserNotVerifiedException;
 import com.bmsrestfulapi.repositories.AccountInfoRepository;
 import com.bmsrestfulapi.repositories.LoginRepository;
-import com.bmsrestfulapi.repositories.RoleRepository;
 import com.bmsrestfulapi.repositories.UserRepository;
 
 @Service
@@ -28,25 +26,28 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private LoginRepository loginRepository;
 	@Autowired
-	private RoleRepository roleRepository;
-	@Autowired
 	private AccountInfoRepository accountInfoRepository;
-	
-	
-	
 
 	@Override
-	public List<User> getAllNotVerifiedUser() {
-		return userRepository.getNotVerifiedUsers();
+	public List<User> getAllNotVerifiedUser() throws EmptyUserListException {
+		List<User> userList = userRepository.getNotVerifiedUsers();
+		if(!userList.isEmpty()) {
+			return userList;
+			
+		}
+		throw new EmptyUserListException("All users are already verified.");
+			
 	}
 
 	@Override
 	public String createUser(User user) throws UserNotCreatedException {
 		if (userRepository.existsById(user.getUserId())) {
-			throw new UserNotCreatedException("Error creating user!'\n'User already exist.");
-		} else if (user.getName().equals(UserService.STRING) || user.getAddress().equals(UserService.STRING) || user.getContactNo() == 0
-				|| user.getGender().equals(UserService.STRING) || user.getPin() == 0) {
-			throw new UserNotCreatedException("Error creating user!'\n'Please check details.");
+			throw new UserNotCreatedException("Error creating user!\nUser already exist.");
+		} else if (userRepository.existByContactNo(user.getContactNo()) != null) {
+			throw new UserNotCreatedException("Error creating user!\nUser already exist with same contact no.");
+		} else if (user.getName().equals(UserService.STRING) || user.getAddress().equals(UserService.STRING)
+				|| user.getContactNo() == 0 || user.getGender().equals(UserService.STRING) || user.getPin() == 0) {
+			throw new UserNotCreatedException("Error creating user!\nPlease check details.");
 
 		} else {
 			User u = userRepository.save(user);
@@ -56,46 +57,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public String login(Integer accountNo, String password)
-			throws InvalidLoginCredentialsException, UserNotVerifiedException {
-		Login login = loginRepository.getCredentials(accountNo, password);
-		if (login != null) {
-			if (login.isVerified()) {
-				login.setLogin(true);
-				loginRepository.save(login);
-				return "Successful login";
-			} else {
-				throw new UserNotVerifiedException("You are not verified, Please wait until Admin verifies you.");
-			}
-
-		}
-		throw new InvalidLoginCredentialsException("Please check your Login Credentials!");
-
-	}
-
-	@Override
 	public String verifyUser(Integer userId) {
 		Login login = loginRepository.getLoginById(userId);
 		login.setVerified(true);
 		return " User verified Successfully.";
-	}
-
-	@Override
-	public String adminLogin(Integer accountNo, String password)
-			throws InvalidLoginCredentialsException, UserNotVerifiedException {
-		Login login = loginRepository.getCredentials(accountNo, password);
-		if (login != null) {
-			Integer userId = accountInfoRepository.getUserIdByAccountNot(accountNo);
-			String role = roleRepository.getRole(userId).toLowerCase();
-			if (role.equals("admin")) {
-				login.setLogin(true);
-				loginRepository.save(login);
-				return "Admin Successfully loggedin";
-			} else {
-				throw new UserNotVerifiedException("You are not admin, Please contact with BM.");
-			}
-		}
-		throw new InvalidLoginCredentialsException("Please check your Login Credentials!");
 	}
 
 	@Override

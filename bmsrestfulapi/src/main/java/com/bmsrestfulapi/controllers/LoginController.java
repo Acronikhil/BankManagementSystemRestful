@@ -10,23 +10,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bmsrestfulapi.exceptions.InvalidLoginCredentialsException;
 import com.bmsrestfulapi.exceptions.UserNotVerifiedException;
-import com.bmsrestfulapi.services.UserService;
+import com.bmsrestfulapi.services.LoginService;
 
 @RestController
 @RequestMapping("/login")
 public class LoginController {
 	
 	@Autowired
-	private UserService userService;
+	private LoginService loginService;
 	
 	@PostMapping("/user")
 	public  ResponseEntity<String> loginUser(@RequestParam Integer accountNo, @RequestParam String password) throws InvalidLoginCredentialsException, UserNotVerifiedException {
-		return new ResponseEntity<>(userService.login(accountNo, password), HttpStatus.OK);
+		return new ResponseEntity<>(loginService.login(accountNo, password), HttpStatus.OK);
 	}
    
 	@PostMapping("/admin")
 	public  ResponseEntity<String> adminLogin(@RequestParam Integer accountNo, @RequestParam String password) throws InvalidLoginCredentialsException, UserNotVerifiedException {
-		return new ResponseEntity<>(userService.adminLogin(accountNo, password), HttpStatus.OK);
+		return new ResponseEntity<>(loginService.adminLogin(accountNo, password), HttpStatus.OK);
 	}
 
 }

@@ -24,4 +24,6 @@ public interface UserRepository extends JpaRepository<User, Integer>{
 	@Query("from User u where u.pin=:pin")
 	public User verifyPin(@Param(value = "pin") Integer pin);
 	
+	@Query("from User u where u.contactNo=:contactNo")
+	public User existByContactNo(@Param(value= "contactNo") Long contactNo );
 }

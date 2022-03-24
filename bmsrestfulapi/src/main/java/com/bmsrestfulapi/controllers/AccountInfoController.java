@@ -23,17 +23,17 @@ public class AccountInfoController {
 	 * Admin will get balance of their users by userId
 	 */
 	@PostMapping("/getbalance")
-	public ResponseEntity<String> getBalanceByUserId(@RequestParam Integer userId) {
-		return new ResponseEntity<>(accountInfoService.checkBalance(userId), HttpStatus.OK);
+	public ResponseEntity<String> getBalanceByUserId(@RequestParam Integer userId, Integer adminId) throws UserNotFoundException, InvalidCredentialsException {
+		return new ResponseEntity<>(accountInfoService.checkBalance(userId, adminId), HttpStatus.OK);
 	}
 
 	/*
 	 * Admin will add money in users account by userId, accountNo and amount
 	 */
 	@PostMapping("/addmoney")
-	public ResponseEntity<String> addMoney(@RequestParam Integer accountNo,Integer userId,Integer amount  )
+	public ResponseEntity<String> addMoney(@RequestParam Integer accountNo,Integer adminId,Integer amount  )
 			throws InvalidCredentialsException, UserNotFoundException {
-		return new ResponseEntity<>(accountInfoService.addMoney(amount, accountNo, userId), HttpStatus.OK);
+		return new ResponseEntity<>(accountInfoService.addMoney(accountNo, adminId, amount), HttpStatus.OK);
 	}
 
 }

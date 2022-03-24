@@ -4,21 +4,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bmsrestfulapi.entities.Login;
+import com.bmsrestfulapi.exceptions.CustomExceptionsMessages;
 import com.bmsrestfulapi.exceptions.InvalidLoginCredentialsException;
 import com.bmsrestfulapi.exceptions.UserNotVerifiedException;
-import com.bmsrestfulapi.repositories.AccountInfoRepository;
 import com.bmsrestfulapi.repositories.LoginRepository;
 import com.bmsrestfulapi.repositories.RoleRepository;
 
 @Service
 public class LoginServiceImpl implements LoginService {
-	
+
 	@Autowired
 	private LoginRepository loginRepository;
 	@Autowired
 	private RoleRepository roleRepository;
-	@Autowired
-	private AccountInfoRepository accountInfoRepository;
 
 	@Override
 	public String login(Integer accountNo, String password)
@@ -30,30 +28,29 @@ public class LoginServiceImpl implements LoginService {
 				loginRepository.save(login);
 				return "Successful login";
 			} else {
-				throw new UserNotVerifiedException("You are not verified, Please wait until Admin verifies you.");
+				throw new UserNotVerifiedException(CustomExceptionsMessages.WAIT_UNTIL_ADMIN_VERIFIES);
 			}
 
 		}
-		throw new InvalidLoginCredentialsException("Please check your Login Credentials!");
+		throw new InvalidLoginCredentialsException(CustomExceptionsMessages.PLEASE_CHECK_YOUR_LOGIN_CREDENTIALS);
 
 	}
-	
+
 	@Override
 	public String adminLogin(Integer accountNo, String password)
 			throws InvalidLoginCredentialsException, UserNotVerifiedException {
 		Login login = loginRepository.getCredentials(accountNo, password);
 		if (login != null) {
-			Integer userId = accountInfoRepository.getUserIdByAccountNot(accountNo);
-			String role = roleRepository.getRole(userId).toLowerCase();
+			String role = roleRepository.getRole(login.getUser().getUserId()).toLowerCase();
 			if (role.equals("admin")) {
 				login.setLogin(true);
 				loginRepository.save(login);
 				return "Admin Successfully loggedin";
 			} else {
-				throw new UserNotVerifiedException("You are not admin, Please contact with BM.");
+				throw new UserNotVerifiedException(CustomExceptionsMessages.YOU_ARE_NOT_ADMIN_CONTACT_TO_BM);
 			}
 		}
-		throw new InvalidLoginCredentialsException("Please check your Login Credentials!");
+		throw new InvalidLoginCredentialsException(CustomExceptionsMessages.PLEASE_CHECK_YOUR_LOGIN_CREDENTIALS);
 	}
 
 }

@@ -32,6 +32,7 @@ class LoginServiceTest {
 	@Autowired
 	UserRepository userRepository;
 
+	/* Creating a mock user data to add in database */
 	private final User user = new User(8, "Indore", "abcJuintTest", 123, LocalDate.now(), 8962132378L, "female");
 
 	@BeforeEach
@@ -68,12 +69,12 @@ class LoginServiceTest {
 	@Test
 	void adminLoginTest1() throws UserNotVerifiedException {
 		
-		assertThrows(UserNotVerifiedException.class, () -> loginService.login(999, "1234"),"You are not admin, Please contact with BM.");
+		assertThrows(UserNotVerifiedException.class, () -> loginService.adminLogin(999, "1234"),"You are not admin, Please contact with BM.");
 	}
 
 	@Test
 	void adminLoginTest2() throws InvalidCredentialsException {
-		assertThrows(InvalidLoginCredentialsException.class, () -> loginService.login(12, "4"));
+		assertThrows(InvalidLoginCredentialsException.class, () -> loginService.adminLogin(12, "4"));
 	}
 	
 

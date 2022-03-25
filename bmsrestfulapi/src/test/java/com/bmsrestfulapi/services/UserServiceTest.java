@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +47,10 @@ class UserServiceTest {
 		user.setLogin(l);
 		user.setAccountList(accountList);
 
-		userRepository.save(user);
+		User u = userRepository.save(user);
+		u.getLogin().setAccountNo(u.getAccountList().get(0).getAccountNo());
+
+		System.out.println("--------------------\n" + u.getLogin() + "--------------" + u.getAccountList());
 	}
 
 	@Test
@@ -66,22 +68,19 @@ class UserServiceTest {
 	@Test
 	void withdrawMoneyTest() throws InvalidCredentialsException {
 
-		assertThrows(InvalidCredentialsException.class, () -> userService.withdrawMoney(1523, 500, 1));
+		assertThrows(InvalidCredentialsException.class, () -> userService.withdrawMoney(121, 500, 0));
 
 	}
-	
+
 	@Test
-	void moneyTransferTest() throws InvalidCredentialsException{
+	void moneyTransferTest() throws InvalidCredentialsException {
 		assertThrows(InvalidCredentialsException.class, () -> userService.moneyTransfer(421, 500, 0, 546));
 	}
-	
+
 	@Test
-	void getAllNotVerifiedUsersTest() throws EmptyUserListException{
+	void getAllNotVerifiedUsersTest() throws EmptyUserListException {
 		assertThrows(EmptyUserListException.class, () -> userService.getAllNotVerifiedUser());
 	}
-	
-	
-	
 
 	@AfterEach
 	void tearDown() {
